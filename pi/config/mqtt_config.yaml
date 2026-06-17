@@ -1,0 +1,15 @@
+# MQTT broker + topic configuration (Pi side).
+# Broker runs locally on the Pi (Mosquitto). ESP32 connects to the Pi's LAN IP.
+broker:
+  host: localhost        # Pi-side clients use localhost; ESP32 uses the Pi's static LAN IP
+  port: 1883
+  keepalive: 30
+  client_id: pi-host
+
+topics:
+  cmd_joints:  arm/cmd/joints     # "b s e w"  absolute angles (deg)
+  cmd_pantilt: arm/cmd/pantilt    # "dpan dtilt" relative nudge (deg)
+  cmd_mode:    arm/cmd/mode       # "HOME" | "RELAX"
+  state:       arm/state          # "b s e w" telemetry from ESP32
+  status:      arm/status         # "ok" | "linklost" | "relaxed"
+  alarm:       arm/alarm          # Phase 4 fire/intruder events

@@ -1,0 +1,8 @@
+# Pi-side Python deps. Install picamera2 via apt (python3-picamera2), not pip.
+paho-mqtt>=1.6
+pyyaml>=6.0
+pyserial>=3.5
+numpy>=1.24
+opencv-python>=4.8     # Phase 3
+mediapipe>=0.10        # Phase 4
+gpiozero>=2.0          # Phase 4 (optional buzzer)

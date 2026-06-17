@@ -1,0 +1,22 @@
+# Arm kinematic + joint configuration (Pi side).
+# Joint limits/home MIRROR the ESP32 config.h (defence-in-depth: both clamp).
+# Link lengths are measured from YOUR assembled arm (used by IK in Phase 2).
+
+axes:           # index 0=base 1=shoulder 2=elbow 3=wrist
+  - {name: base,     home: 90.0, min: 0.0, max: 180.0, max_dps: 60.0}
+  - {name: shoulder, home: 0.0,  min: 0.0, max: 120.0, max_dps: 45.0}
+  - {name: elbow,    home: 0.0,  min: 0.0, max: 140.0, max_dps: 45.0}
+  - {name: wrist,    home: 90.0, min: 0.0, max: 180.0, max_dps: 60.0}
+
+# Geometry (mm) — MEASURE on the real arm before Phase 2 IK.
+geometry:
+  base_height_mm: 0.0     # H : floor -> shoulder joint
+  link1_mm: 0.0           # L1: shoulder -> elbow
+  link2_mm: 0.0           # L2: elbow -> wrist (camera mount)
+
+# Pan/tilt tracking (Phase 4) defaults.
+tracking:
+  kp_pan: 18.0            # deg nudge per normalized x-error
+  kp_tilt: 14.0
+  deadzone: 0.05         # fraction of frame; no move inside this
+  max_step_deg: 4.0      # clamp per update

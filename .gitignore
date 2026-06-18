@@ -1,0 +1,14 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# PlatformIO build output
+esp32/.pio/
+
+# Secrets (copy config.h.example and fill locally)
+esp32/include/secrets.h
+
+# OS
+.DS_Store
+Thumbs.db

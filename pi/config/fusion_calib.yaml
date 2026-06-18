@@ -6,11 +6,9 @@ alarm:
 overlay:
   alpha: 0.45
 warp:
-# Updated for 512x384 crop (was 640x480 with 0.91, 0.875, 54.8, 14).
-# Crop is center-based: pixel offset translate recalculated.
-- - 0.91
+- - 1.1150000095367432
   - 0.0
-  - 46.4
+  - 0.5600000023841858
 - - 0.0
-  - 0.875
-  - 7.0
+  - 1.25
+  - -82.0

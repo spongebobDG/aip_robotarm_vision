@@ -6,9 +6,8 @@ camera:
   format: RGB888          # Picamera2 main-stream pixel format (Picamera2 backend)
 
   # Software crop: reduce barrel distortion & narrow FOV toward thermal sensor.
-  # Set to null to disable. When enabled, the raw frame is cropped to center.
-  # This reduces FOV from ~105° (wide) to ~70° (standard), improving fusion
-  # registration and thermal-RGB matching.
+  # Set enabled: false to use the full sensor frame. Tuned live via
+  # `tools.fusion_align_web`'s "zoom" slider — Save there writes these values.
   crop:
     enabled: true
     left: 64                # crop left edge (pixels from frame left)

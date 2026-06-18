@@ -12,3 +12,6 @@ esp32/include/secrets.h
 # OS
 .DS_Store
 Thumbs.db
+
+# Runtime capture artifacts (diagnostic snapshots, not source)
+captures/

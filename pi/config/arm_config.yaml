@@ -10,9 +10,26 @@ axes:           # index 0=base 1=shoulder 2=elbow 3=wrist
 
 # Geometry (mm) — MEASURE on the real arm before Phase 2 IK.
 geometry:
-  base_height_mm: 0.0     # H : floor -> shoulder joint
-  link1_mm: 0.0           # L1: shoulder -> elbow
-  link2_mm: 0.0           # L2: elbow -> wrist (camera mount)
+  base_height_mm: 95.0    # H : base -> shoulder joint
+  link1_mm: 115.0         # L1: shoulder -> elbow
+  link2_mm: 120.0         # L2: elbow -> wrist (camera mount). The elbow->wrist
+                          # bracket is a right-angle (ㄱ) bend, not a straight
+                          # rod; 120mm is the diagonal (straight-line elbow
+                          # axis -> camera mount), which is exactly the L2 the
+                          # planar IK model needs.
+
+# Per-axis kinematic correction (see pi/kinematics/arm_model.py docstring).
+# sign: +1/-1 if a servo's physical rotation direction is opposite the math
+#   convention. offset_deg: constant angular offset between "servo at home"
+#   and "theta=0" — likely needed for elbow because of the ㄱ bend above
+#   (if the bracket isn't bisected by the servo's zero position). Leave at
+#   0 until the FK round-trip check (pi/tools/kinematics_check.py + ruler
+#   measurement on the real arm) shows a consistent mismatch to calibrate.
+kinematics:
+  base:     {sign: 1.0, offset_deg: 0.0}
+  shoulder: {sign: 1.0, offset_deg: 0.0}
+  elbow:    {sign: 1.0, offset_deg: 0.0}
+  wrist:    {sign: 1.0, offset_deg: 0.0}
 
 # Pan/tilt tracking (Phase 4) defaults.
 tracking:

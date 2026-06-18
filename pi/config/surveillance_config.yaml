@@ -32,5 +32,5 @@ alarm:
   sustain_s: 3.0           # keep ALARM at least this long after last detection
 
 perception:
-  detector: haar_face      # haar_face | hog_people (both ship with OpenCV)
+  detector: hog_people     # hog_people (full-body SVM) | motion (frame diff)
   process_every_n: 1       # run detector every Nth frame (raise to save CPU)

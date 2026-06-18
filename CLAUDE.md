@@ -57,8 +57,15 @@ multiprocessing 단계로 동작하며 shared memory/queue로 연결되고 "late
   후 `/dev/ttyS0`가 `root:dialout`로 돌아와 sudo 없이 접근 가능(재부팅 전엔 sudo
   필요). (2) `camera_config.yaml`의 `media_device`는 ISP(`/dev/media1`)가 아니라
   센서가 사는 `/dev/media0`여야 함.
-- **Phase 4** — 감시 AI/추적(`pi/app/`, 아직 미생성): FSM 우선순위
-  FIRE > INTRUDER > PATROL, 이미지 기반 pan/tilt 비주얼 서보잉.
+- **Phase 4 (코어 구축·검증)** — 감시 AI/추적(`pi/app/`). FSM 우선순위
+  FIRE > INTRUDER > PATROL(`app/state_machine.py`), 이미지 기반 pan/tilt 비주얼
+  서보잉(`app/tracker.py`), 사람/모션 탐지(`vision/detector.py`: HOG ~10fps /
+  frame-diff motion, 외부 모델파일 없이 OpenCV 내장만 사용), 화재/고온 분석
+  (`vision/thermal_analysis.py`: 히스테리시스+sustain), 오케스트레이터
+  (`app/main.py`: latest-frame-wins 스레드, 종료 시 HOME→RELAX). 파라미터는
+  `config/surveillance_config.yaml`. 전 모듈 단독+드라이런(`python -m app.main
+  --dry-run`)으로 실센서 검증(PATROL/TRACKING/ALARM_FIRE 전이 확인). **남은 것:**
+  브로커+ESP32 실하드웨어 풀 시나리오, Kp/데드존 라이브 튜닝, (옵션) 부저/릴레이.
 
 ## 하드웨어/안전 불변조건 (펌웨어나 설정 수정 시 위반하지 말 것)
 

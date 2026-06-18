@@ -205,15 +205,18 @@ class V4L2Backend:
 # Public capture object (backend-agnostic, latest-frame-wins)
 # --------------------------------------------------------------------------- #
 class CameraCapture:
-    def __init__(self, config_path: "str | Path" = _CONFIG):
+    def __init__(self, config_path: "str | Path" = _CONFIG, force_full_frame: bool = False):
         self._cfg = yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))["camera"]
         self._width = int(self._cfg["width"])
         self._height = int(self._cfg["height"])
         self._fps = int(self._cfg["fps"])
 
         # Software crop to reduce barrel distortion and match thermal FOV.
+        # force_full_frame bypasses the saved crop (used by the live FOV/alignment
+        # tool, which needs the full sensor frame to let "zoom" go wider than
+        # whatever crop is currently saved).
         crop_cfg = self._cfg.get("crop", {})
-        self._crop_enabled = bool(crop_cfg.get("enabled", False))
+        self._crop_enabled = False if force_full_frame else bool(crop_cfg.get("enabled", False))
         if self._crop_enabled:
             self._crop_left = int(crop_cfg["left"])
             self._crop_top = int(crop_cfg["top"])

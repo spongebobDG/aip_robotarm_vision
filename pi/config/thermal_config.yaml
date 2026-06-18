@@ -1,0 +1,64 @@
+# Thermal module UART configuration (Pi side, /dev/serial0).
+#
+# CONFIRMED 2026-06-18 by reverse-engineering the live wire (see
+# docs/devlog/phase3-vision.md). The module is an MLX90640-based (24x32)
+# unit with an onboard MCU re-streaming frames over UART. The values below
+# were NOT guessed from a datasheet -- they were captured from /dev/ttyS0
+# and the checksum was verified against 16 consecutive live frames, so
+# `confirmed: true` is justified.
+#
+# Frame layout (1544 bytes, little-endian throughout):
+#   off 0   2B   start marker      = 5A 5A
+#   off 2   2B   length            = 0x0602 (1538 = payload 1536 + checksum 2)
+#   off 4   2B   Ta ambient temp   = uint16, deg_C = raw * value_scale
+#   off 6   1536B payload          = 768 px (24x32), uint16 each, deg_C = raw*scale
+#   off 1542 2B  checksum          = sum of every uint16 LE word over bytes
+#                                     [0 .. 1542), mod 0x10000, stored little-endian
+confirmed: true
+
+port: /dev/serial0
+baud: 115200
+rows: 24
+cols: 32
+start_marker: [0x5A, 0x5A]       # frame sync bytes
+
+# Bytes between the start marker and the pixel payload: length(2) + Ta(2).
+# read_frame() skips these (Ta is also exposed via ThermalSerial.last_ta_c).
+header_bytes: 4
+
+value_dtype: uint16
+value_byteorder: little          # uint16 pixels are little-endian on the wire
+value_scale: 0.01                # temp_c = raw * value_scale + value_offset
+value_offset: 0.0
+
+# checksum modes: none | sum8 | sum16_words
+#   sum16_words = 16-bit sum of all uint16 LE words from the start marker
+#   through the end of the payload (i.e. everything except the 2 checksum
+#   bytes themselves), taken mod 0x10000 and compared little-endian.
+checksum: sum16_words
+timeout_s: 1.0
+
+# Bad-pixel repair. This module's MLX90640 has a few stuck pixels that always
+# report a fixed extreme value (observed 2026-06-18: 3 pixels stuck at exactly
+# 615.4 C, raw 61540). The checksum passes -- they are valid wire bytes from a
+# dead sensor element, not a transport error -- so they'd otherwise blow up the
+# colormap range and constantly trip the Phase 4 fire threshold (60 C). Any
+# pixel outside [min_valid_c, max_valid_c] is replaced by the median of its
+# valid 8-neighbours. See docs/devlog/phase3-vision.md.
+bad_pixel:
+  repair: true
+  min_valid_c: -20.0
+  max_valid_c: 300.0
+
+# Frame orientation correction, applied in read_frame() so EVERY consumer (live
+# preview, fusion_calibrate_web, Fusion.overlay) sees the same geometrically
+# correct frame. This MUST be fixed here (at the source) and not in the display:
+# the calibration affine (estimateAffinePartial2D) is a similarity transform and
+# cannot undo a flip/mirror, so any flip left uncorrected makes registration
+# impossible. Observed 2026-06-18: this module streams rows bottom-to-top vs the
+# camera, i.e. vertically flipped -> flip_vertical: true. flip_horizontal/
+# rotate_180 are here too in case a remount changes the mirroring.
+orientation:
+  flip_vertical: true      # np.flipud -- module's rows run bottom-to-top
+  flip_horizontal: false   # np.fliplr
+  rotate_180: false        # equivalent to flip_vertical AND flip_horizontal

@@ -99,14 +99,30 @@ void onMqtt(char* topic, byte* payload, unsigned int len) {
 }
 
 void ensureLink() {
+  static uint32_t tWifiLog = 0, tMqttLog = 0;
   if (WiFi.status() != WL_CONNECTED) {
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    return;  // try again next loop; don't block control
+    if (millis() - tWifiLog > 5000) {
+      Serial.printf("[wifi] status=%d  SSID=%s\n", WiFi.status(), WIFI_SSID);
+      tWifiLog = millis();
+      WiFi.begin(WIFI_SSID, WIFI_PASS);
+    }
+    return;
+  }
+  if (millis() - tWifiLog > 0) {
+    Serial.printf("[wifi] connected. IP=%s\n", WiFi.localIP().toString().c_str());
+    tWifiLog = millis();
   }
   if (!mqtt.connected()) {
-    if (mqtt.connect(MQTT_CLIENTID)) {
-      mqtt.subscribe(TOPIC_CMD_SUB);
-      mqtt.publish(TOPIC_STATUS, "ok");
+    if (millis() - tMqttLog > 5000) {
+      Serial.printf("[mqtt] connecting to %s:%d ...\n", MQTT_BROKER, MQTT_PORT);
+      tMqttLog = millis();
+      if (mqtt.connect(MQTT_CLIENTID)) {
+        Serial.println("[mqtt] connected!");
+        mqtt.subscribe(TOPIC_CMD_SUB);
+        mqtt.publish(TOPIC_STATUS, "ok");
+      } else {
+        Serial.printf("[mqtt] connect failed, rc=%d\n", mqtt.state());
+      }
     }
   }
 }

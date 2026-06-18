@@ -98,6 +98,11 @@ class MqttLink:
     def relax(self) -> None:
         self._cli.publish(self._t["cmd_mode"], "RELAX", qos=1)
 
+    def alarm(self, payload: str) -> None:
+        """Publish a Phase 4 surveillance event (fire/intruder) on arm/alarm.
+        QoS 1 so alarms aren't silently dropped on a flaky link."""
+        self._cli.publish(self._t["alarm"], payload, qos=1)
+
 
 if __name__ == "__main__":
     # Smoke test: connect, home, print telemetry for a few seconds.

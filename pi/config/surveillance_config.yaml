@@ -1,0 +1,36 @@
+# Phase 4 surveillance / tracking / alarm parameters (Pi side).
+# The hard-real-time 50 Hz servo loop lives on the ESP32; this file only tunes
+# the slow, event-level perception + behaviour layer on the Pi.
+
+tracking:
+  # Image-based visual servoing gains (J0 pan + J3 tilt). The normalized center
+  # error (-1..1) is multiplied by Kp to get a per-update pan/tilt nudge (deg).
+  kp_pan_deg: 8.0          # higher = snappier pan, too high = oscillation
+  kp_tilt_deg: 6.0
+  deadzone: 0.06           # ignore error within +/-6% of frame (anti-jitter)
+  max_nudge_deg: 4.0       # clamp per-update nudge so a big jump can't slew wildly
+  pan_sign: -1.0           # flip if the arm pans the wrong way (mechanical)
+  tilt_sign: 1.0
+  lost_timeout_s: 2.0      # no target this long in TRACKING -> back to PATROL
+
+patrol:
+  # Slow base sweep while watching. J1/J2 held at the watch posture; J0 sweeps.
+  sweep_min_deg: 40.0
+  sweep_max_deg: 140.0
+  sweep_speed_dps: 12.0    # base sweep speed (deg/s), kept gentle
+  watch_shoulder_deg: 30.0 # J1/J2 watch posture (conservative re MG996R torque)
+  watch_elbow_deg: 60.0
+  watch_wrist_deg: 90.0
+
+alarm:
+  # Fire = thermal pixel(s) over t_alarm_c. t_alarm_c also lives in
+  # fusion_calib.yaml (display); keep them consistent. Hysteresis avoids
+  # chattering on/off right at the threshold.
+  t_alarm_c: 60.0
+  t_clear_c: 55.0          # must drop below this to clear (hysteresis)
+  min_area_px: 2           # ignore single-pixel blips (need >= N hot thermal px)
+  sustain_s: 3.0           # keep ALARM at least this long after last detection
+
+perception:
+  detector: haar_face      # haar_face | hog_people (both ship with OpenCV)
+  process_every_n: 1       # run detector every Nth frame (raise to save CPU)

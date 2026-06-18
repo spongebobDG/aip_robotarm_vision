@@ -5,6 +5,17 @@ camera:
   fps: 30
   format: RGB888          # Picamera2 main-stream pixel format (Picamera2 backend)
 
+  # Software crop: reduce barrel distortion & narrow FOV toward thermal sensor.
+  # Set to null to disable. When enabled, the raw frame is cropped to center.
+  # This reduces FOV from ~105° (wide) to ~70° (standard), improving fusion
+  # registration and thermal-RGB matching.
+  crop:
+    enabled: true
+    left: 64                # crop left edge (pixels from frame left)
+    top: 48                 # crop top edge (pixels from frame top)
+    width: 512              # output width after crop
+    height: 384             # output height after crop (4:3 aspect ratio)
+
   # Backend selection: auto | picamera2 | v4l2
   #   auto      — use Picamera2 if the libcamera stack imports, else V4L2.
   # This board (Ubuntu 22.04 Server on a Pi 4) has no python3-picamera2 in its

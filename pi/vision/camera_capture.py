@@ -211,6 +211,19 @@ class CameraCapture:
         self._height = int(self._cfg["height"])
         self._fps = int(self._cfg["fps"])
 
+        # Software crop to reduce barrel distortion and match thermal FOV.
+        crop_cfg = self._cfg.get("crop", {})
+        self._crop_enabled = bool(crop_cfg.get("enabled", False))
+        if self._crop_enabled:
+            self._crop_left = int(crop_cfg["left"])
+            self._crop_top = int(crop_cfg["top"])
+            self._crop_width = int(crop_cfg["width"])
+            self._crop_height = int(crop_cfg["height"])
+        else:
+            self._crop_left = self._crop_top = 0
+            self._crop_width = self._width
+            self._crop_height = self._height
+
         self._backend = None
         self._lock = threading.Lock()
         self._frame = None
@@ -250,6 +263,9 @@ class CameraCapture:
             frame = self._backend.read()
             if frame is None:
                 continue
+            if self._crop_enabled:
+                frame = frame[self._crop_top:self._crop_top+self._crop_height,
+                              self._crop_left:self._crop_left+self._crop_width]
             with self._lock:
                 self._frame = frame
                 self._frame_count += 1
@@ -269,7 +285,9 @@ class CameraCapture:
 if __name__ == "__main__":
     cap = CameraCapture()
     cap.start()
-    print(f"capturing {cap._width}x{cap._height} @ {cap._fps}fps target — Ctrl+C to stop")
+    output_size = f"{cap._crop_width}x{cap._crop_height}" if cap._crop_enabled else f"{cap._width}x{cap._height}"
+    print(f"capturing {cap._width}x{cap._height} @ {cap._fps}fps, "
+          f"output {output_size} (crop {'enabled' if cap._crop_enabled else 'disabled'}) — Ctrl+C to stop")
     try:
         t0 = time.time()
         last_count = 0

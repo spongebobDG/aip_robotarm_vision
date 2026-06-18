@@ -44,13 +44,20 @@ multiprocessing 단계로 동작하며 shared memory/queue로 연결되고 "late
   열화상에 **죽은 픽셀 3개(항상 615°C 고정)**가 있어 — 체크섬은 통과하지만
   비물리적 — `thermal_serial`이 물리범위 밖 픽셀을 8-이웃 중앙값으로 자동 보정
   (`thermal_config.yaml`의 `bad_pixel` 섹션, `last_bad_pixels`로 카운트 노출).
-  ✅ **RGB↔열화상 정합 캘리브레이션 완료(2026-06-18):** `fusion_calib.yaml`의
-  `affine`이 실측값(scale≈0.90, 회전≈3.8°, 이동 +26.7/+17.5px)으로 채워짐,
-  보정 오버레이 `captures/fusion_overlay_calibrated.png`로 확인. GUI 없는 서버라
-  cv2-창 `fusion_calibrate.py` 대신 **브라우저 기반 `fusion_calibrate_web.py`**(클릭
-  정합)와 `vision_web_preview.py`(RGB+열화상 라이브 비교, 조준용)를 사용. 열화상은
-  카메라 대비 상하반전이라 `thermal_config.yaml`의 `orientation.flip_vertical:true`로
-  **파서에서** 교정(affine은 반사를 못 하므로 캘리브 전 필수). **Phase 3 완료.**
+  ✅ **RGB↔열화상 정합 캘리브레이션 완료(2026-06-18):** 점클릭 캘리브레이션
+  (`fusion_calibrate_web.py`)은 와이드캠 저해상도 열화상에서 클릭 노이즈 +
+  고자유도(homography)가 맞물려 **과적합**(가장자리 쏠림)이 나서 폐기, 대신
+  **라이브 슬라이더 수동 정렬** `pi/tools/fusion_align_web.py`(scale x/y,
+  translate x/y, rotate, alpha, **camera FOV/zoom** 7개 파라미터, 사람이 보면서
+  맞춤)로 전환. `fusion_calib.yaml`의 `warp`(2x3 affine)과
+  `camera_config.yaml`의 `camera.crop`(소프트웨어 crop으로 와이드 105°→70° 좁힘,
+  배럴왜곡·열화상 FOV 매칭 개선)을 도구의 "Save"가 함께 갱신. 현재값: crop
+  512×384(zoom 0.8), warp scale 1.115/1.25·translate 0.56/−82.0.
+  `vision_web_preview.py`(RGB+열화상+fusion 3분할 라이브, 조준/검증용)는 별도
+  프로세스이므로 **fusion_align_web과 동시 실행 금지**(둘 다 같은 UART/카메라를
+  열어 충돌·지연 발생, devlog 트러블슈팅 ⑭). 열화상은 카메라 대비 상하반전이라
+  `thermal_config.yaml`의 `orientation.flip_vertical:true`로 **파서에서** 교정
+  (affine은 반사를 못 하므로 캘리브 전 필수). **Phase 3 완료.**
   ⚠️ **선행 시스템 설정 두 가지:** (1) 모듈이 GPIO14/15(`/dev/serial0→ttyS0`)에
   물려 있는데 이 UART이 리눅스 **시리얼 콘솔**로 점유돼 있었음 — `cmdline.txt`에서
   `console=serial0,115200` 제거 + `serial-getty@ttyS0` disable로 해방함. 재부팅

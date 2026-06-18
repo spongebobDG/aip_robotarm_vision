@@ -9,9 +9,9 @@
 #pragma once
 
 // ---- Network -----------------------------------------------------------------
-#define WIFI_SSID     "YOUR_WIFI_SSID"      // 2.4 GHz network
-#define WIFI_PASS     "YOUR_WIFI_PASSWORD"
-#define MQTT_BROKER   "192.168.0.50"        // Pi static IP (Mosquitto host)
+#define WIFI_SSID     "aip2.4GHz" 
+#define WIFI_PASS     "aip123456"
+#define MQTT_BROKER   "192.168.0.14" // 내 PC 또는 라즈베리파이 Broker IP
 #define MQTT_PORT     1883
 #define MQTT_CLIENTID "arm-esp32"
 

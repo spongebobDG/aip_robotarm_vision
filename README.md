@@ -4,6 +4,13 @@ Raspberry Pi 4가 비전·기구학·상태 머신을 담당하고 ESP32가 4축
 
 > A Pi–ESP32 distributed robot-arm prototype with RGB/thermal perception, MQTT setpoints, local 50 Hz motion control, and link-loss safety behavior.
 
+| 구분 | 내용 |
+|---|---|
+| 구성 | 개인 프로젝트 |
+| 실기기 | Raspberry Pi 4, ESP32, MG996R ×4, CSI RGB camera, UART thermal module |
+| 대표 증거 | 5분 18초 조그, telemetry 1,581건, 8초 link-loss relax |
+| 포트폴리오 | [ROBOTIS 지원 포트폴리오 요약](https://github.com/spongebobDG/robotics-software-portfolio/blob/main/projects/aip-robotarm-vision.md) |
+
 ## 60초 요약
 
 | 구분 | 내용 |
@@ -121,6 +128,10 @@ Pi orchestrator가 종료될 때 HOME과 RELAX를 요청하고, Pi 또는 Wi-Fi�
 ## Security
 
 실제 Wi-Fi 자격정보는 `secrets.h`로 분리했습니다. 공개 이력에 과거 값이 포함됐던 경우 해당 비밀번호를 폐기하고 Git history에서도 제거해야 합니다.
+
+## ROBOTIS 직무 연결
+
+MG996R에는 위치·부하·온도 feedback이 없어 명령각과 실제각의 차이를 측정하지 못했습니다. 이 한계 때문에 상태를 되읽을 수 있는 DYNAMIXEL과 hardware interface에 관심을 갖게 됐습니다. 현재는 문서·코드 학습 단계이며, 직접 제어와 실기기 검증이 끝나기 전까지 DYNAMIXEL SDK 경험으로 표시하지 않습니다.
 
 ## Related Portfolio
 
